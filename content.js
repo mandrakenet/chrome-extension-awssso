@@ -14,11 +14,11 @@ var defaultfavsjson = {
 
 window.addEventListener("load", function () {
   const { hostname, pathname } = window.location;
-  if (hostname.endsWith(".awsapps.com") && 
+  if (hostname.endsWith(".awsapps.com") &&
     pathname.startsWith("/start")) {
     // AWS SSO portal
     saveDataOnSSOAppExpansion();
-  } else if (hostname.includes("console.aws.amazon.com") || 
+  } else if (hostname.includes("console.aws.amazon.com") ||
     hostname.includes("health.aws.amazon.com")) {
     // AWS Console (including PHD)
     changeConsoleHeader();
@@ -68,7 +68,7 @@ function saveDataOnSSOAppExpansion() {
 
 function makeFavs() {
 
-  chrome.storage.sync.get("ce_aws_sso_favorites", function (items) {
+  chrome.storage.local.get("ce_aws_sso_favorites", function (items) {
     var favs = defaultfavsjson;
     if (items.ce_aws_sso_favorites) {
       favs = items.ce_aws_sso_favorites;
@@ -92,7 +92,7 @@ function sortFavs(arFavs) {
     const target = document.querySelector("portal-instance-list");
 
     arFavsRev = arFavs.reverse();
-    iconurl = chrome.extension.getURL("icons/fav.png");
+    iconurl = chrome.runtime.getURL("icons/fav.png");
 
     for (const favid of arFavsRev) {
       for (const el of accountElements) {
@@ -100,7 +100,7 @@ function sortFavs(arFavs) {
         .querySelector(".accountId")
         .textContent.replace("#", "");
         if (accountId == favid) {
-          // target.appendChild(el.parentNode.cloneNode(true));
+          // Move the favorites account element to the beginning of the list
           target.insertBefore(el.parentNode, target.firstChild);
           el.querySelector("img").src = iconurl;
           break;
@@ -144,7 +144,7 @@ function changeConsoleHeader() {
     if (!(response && response.data)) {
       return;
     }
-    const accountMap = response.data;
+    const accountMap = response.data.data;
     const labelSelector = () =>
       document
         .querySelector("span[data-testid='awsc-nav-account-menu-button']")
@@ -187,7 +187,7 @@ function changeConsoleHeader() {
       }
 
       const accountName = accountMap[accountId];
-      const text = `SSO: ${roleName} @ ${accountName} (${accountId})`;
+      const text = `SSO Role: ${roleName} @ ${accountName} (${accountId})`;
       label.innerText = text;
 
       const headerSelector = () =>
@@ -198,7 +198,7 @@ function changeConsoleHeader() {
           return;
         }
 
-        chrome.storage.sync.get("ce_aws_sso_colors", function (items) {
+        chrome.storage.local.get("ce_aws_sso_colors", function (items) {
           var colors = defaultcolorjson;
           if (items.ce_aws_sso_colors) {
             colors = items.ce_aws_sso_colors;
