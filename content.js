@@ -22,7 +22,6 @@ window.addEventListener("load", function () {
     hostname.includes("health.aws.amazon.com")) {
     // AWS Console (including PHD)
     changeConsoleHeader();
-    changeConsoleFooter();
   }
 });
 
@@ -212,45 +211,6 @@ function changeConsoleHeader() {
           }
         });
       });
-    });
-  });
-}
-
-function changeConsoleFooter() {
-  // Change footer color
-  chrome.runtime.sendMessage({ method: "getSSOData" }, function (response) {
-    if (!(response && response.data)) {
-      return;
-    }
-    const accountMap = response.data;
-    const labelSelector = () =>
-      document
-        .querySelector("span[data-testid='awsc-nav-account-menu-button']")
-        .querySelector("span");
-    onElementReady(labelSelector, function (err, label) {
-      if (err) {
-        // console.warn("Ending SSO title update attempts.");
-        return;
-      }
-
-      const accountIdDiv = document
-        .querySelector("div[data-testid='account-detail-menu']")
-        .querySelectorAll("span");
-
-      var accountId = "";
-      const isNumberRegexp = new RegExp(/^[0-9]+(\.[0-9]+)?$/);
-      for (span of accountIdDiv) {
-        const accountIdTmp = span.innerText.replaceAll("-", "");
-        if (isNumberRegexp.test(accountIdTmp) && accountIdTmp.length == 12) {
-          accountId = accountIdTmp;
-          break;
-        }
-      }
-      if (!accountId) {
-        return;
-      }
-
-      const accountName = accountMap[accountId];
 
       const footerSelector = () =>
         document.querySelector("div[id='console-nav-footer-inner']");
